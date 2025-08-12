@@ -1,39 +1,104 @@
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
-// Simple in-memory storage
+// Enhanced interview questions and responses
+const interviewQuestions = [
+  {
+    id: 1,
+    question: "Hello! I'm Sarah from HR. Tell me about yourself and what interests you about this position?",
+    followUp: "That's interesting! Can you give me a specific example of your experience?",
+    keywords: ["experience", "background", "skills"]
+  },
+  {
+    id: 2,
+    question: "What are your greatest strengths and how do they apply to this role?",
+    followUp: "How have you used these strengths in your previous work?",
+    keywords: ["strengths", "skills", "abilities"]
+  },
+  {
+    id: 3,
+    question: "Tell me about a challenging project you worked on. What was your role and how did you handle it?",
+    followUp: "What did you learn from that experience?",
+    keywords: ["project", "challenge", "leadership"]
+  },
+  {
+    id: 4,
+    question: "Where do you see yourself in 5 years?",
+    followUp: "How does this position align with your career goals?",
+    keywords: ["goals", "future", "career"]
+  },
+  {
+    id: 5,
+    question: "Why should we hire you for this position?",
+    followUp: "What unique value can you bring to our team?",
+    keywords: ["value", "contribution", "unique"]
+  }
+];
+
+// In-memory storage for interviews
 const interviews = new Map();
+const activeConnections = new Map();
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', activeInterviews: interviews.size });
+  res.json({ 
+    status: 'healthy', 
+    activeInterviews: interviews.size,
+    activeConnections: activeConnections.size
+  });
 });
 
 // Start interview
 app.post('/api/interview/start', (req, res) => {
-  const id = 'demo_' + Date.now();
-  const question = "Hello! I'm Sarah from HR. Tell me about yourself and what interests you about this position?";
+  const interviewId = uuidv4();
+  const currentQuestion = interviewQuestions[0];
   
-  interviews.set(id, {
-    id,
-    history: [{ type: 'ai', content: question }]
-  });
+  const interview = {
+    id: interviewId,
+    currentQuestionIndex: 0,
+    history: [{ 
+      type: 'ai', 
+      content: currentQuestion.question,
+      questionId: currentQuestion.id,
+      timestamp: new Date().toISOString()
+    }],
+    score: 0,
+    startTime: new Date().toISOString(),
+    status: 'active'
+  };
+  
+  interviews.set(interviewId, interview);
   
   res.json({
     success: true,
-    interviewId: id,
-    openingQuestion: question
+    interviewId: interviewId,
+    openingQuestion: currentQuestion.question,
+    questionId: currentQuestion.id
   });
 });
 
 // Respond to interview
 app.post('/api/interview/respond', (req, res) => {
-  const { interviewId, response } = req.body;
+  const { interviewId, response, audioUrl } = req.body;
   const interview = interviews.get(interviewId);
   
   if (!interview) {
@@ -41,154 +106,152 @@ app.post('/api/interview/respond', (req, res) => {
   }
   
   // Add candidate response
-  interview.history.push({ type: 'candidate', content: response });
+  interview.history.push({ 
+    type: 'candidate', 
+    content: response,
+    audioUrl: audioUrl,
+    timestamp: new Date().toISOString()
+  });
   
-  // Generate AI response
-  const aiResponses = [
-    "That's interesting! Can you give me a specific example?",
-    "How did that experience help you grow professionally?",
-    "What challenges did you face and how did you overcome them?",
-    "Tell me about your role in that project.",
-    "What motivates you in your work?"
-  ];
+  // Calculate score based on response
+  const score = calculateScore(response, interview.currentQuestionIndex);
+  interview.score += score;
   
-  const aiResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-  interview.history.push({ type: 'ai', content: aiResponse });
+  // Move to next question or end interview
+  const nextQuestionIndex = interview.currentQuestionIndex + 1;
   
-  // Simple scoring
-  let score = 5;
-  if (response.length > 50) score += 2;
-  if (response.toLowerCase().includes('team')) score += 1;
-  if (response.toLowerCase().includes('project')) score += 1;
+  if (nextQuestionIndex < interviewQuestions.length) {
+    const nextQuestion = interviewQuestions[nextQuestionIndex];
+    interview.currentQuestionIndex = nextQuestionIndex;
+    
+    interview.history.push({ 
+      type: 'ai', 
+      content: nextQuestion.question,
+      questionId: nextQuestion.id,
+      timestamp: new Date().toISOString()
+    });
+    
+    res.json({
+      success: true,
+      aiResponse: nextQuestion.question,
+      questionId: nextQuestion.id,
+      scoring: { 
+        currentScore: interview.score,
+        questionScore: score,
+        totalQuestions: interviewQuestions.length,
+        currentQuestion: nextQuestionIndex + 1
+      },
+      interviewStatus: 'continuing'
+    });
+  } else {
+    // Interview completed
+    interview.status = 'completed';
+    interview.endTime = new Date().toISOString();
+    
+    const finalScore = Math.round((interview.score / interviewQuestions.length) * 10);
+    
+    res.json({
+      success: true,
+      aiResponse: "Thank you for your time! I've completed your interview. We'll review your responses and get back to you soon.",
+      scoring: { 
+        finalScore: finalScore,
+        totalScore: interview.score,
+        totalQuestions: interviewQuestions.length
+      },
+      interviewStatus: 'completed'
+    });
+  }
+});
+
+// Get interview history
+app.get('/api/interview/:id', (req, res) => {
+  const interview = interviews.get(req.params.id);
+  if (!interview) {
+    return res.status(404).json({ success: false, error: 'Interview not found' });
+  }
   
   res.json({
     success: true,
-    aiResponse,
-    scoring: { currentScore: Math.min(score, 10) }
+    interview: interview
   });
 });
 
-// Serve simple HTML page
-app.get('*', (req, res) => {
-  res.send(`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AI Interview System</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; text-align: center; }
-        .card { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin: 20px 0; }
-        button { background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #45a049; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
-        .log { text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .hidden { display: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🤖 AI Interview System Pro</h1>
-        <p>Your AI Interview System is LIVE and Working! ✅</p>
-        
-        <div id="start-screen" class="card">
-            <h2>🎉 Start Your AI Interview</h2>
-            <p>Click below to begin your interview with AI Sarah</p>
-            <button onclick="startInterview()">🎬 Start Demo Interview</button>
-        </div>
-        
-        <div id="interview-screen" class="card hidden">
-            <h2>AI Interviewer - Sarah 👩‍💼</h2>
-            <div id="question-display" class="log"></div>
-            <textarea id="response-input" placeholder="Type your response here..." rows="4"></textarea>
-            <button onclick="submitResponse()">📤 Submit Response</button>
-            <div id="score-display"></div>
-        </div>
-        
-        <div id="interview-log" class="card hidden">
-            <h3>💬 Interview Log</h3>
-            <div id="log-content"></div>
-        </div>
-    </div>
-
-    <script>
-        let interviewData = null;
-        let log = [];
-        
-        async function startInterview() {
-            try {
-                const response = await fetch('/api/interview/start', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ candidateId: 'demo_' + Date.now() })
-                });
-                
-                const data = await response.json();
-                interviewData = data;
-                
-                document.getElementById('start-screen').classList.add('hidden');
-                document.getElementById('interview-screen').classList.remove('hidden');
-                document.getElementById('interview-log').classList.remove('hidden');
-                
-                document.getElementById('question-display').innerHTML = 
-                    '<strong>🤖 AI Sarah:</strong> ' + data.openingQuestion;
-                    
-                addToLog('ai', data.openingQuestion);
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-        
-        async function submitResponse() {
-            const responseText = document.getElementById('response-input').value.trim();
-            if (!responseText) return;
-            
-            try {
-                const response = await fetch('/api/interview/respond', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        interviewId: interviewData.interviewId,
-                        response: responseText
-                    })
-                });
-                
-                const data = await response.json();
-                
-                addToLog('candidate', responseText);
-                addToLog('ai', data.aiResponse);
-                
-                document.getElementById('question-display').innerHTML = 
-                    '<strong>🤖 AI Sarah:</strong> ' + data.aiResponse;
-                    
-                document.getElementById('score-display').innerHTML = 
-                    '<div style="color: #4CAF50; margin: 10px 0;">Score: ' + data.scoring.currentScore + '/10</div>';
-                    
-                document.getElementById('response-input').value = '';
-                
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-        
-        function addToLog(type, content) {
-            const time = new Date().toLocaleTimeString();
-            const logItem = '<div class="log"><strong>' + 
-                (type === 'ai' ? '🤖 AI Sarah' : '👤 You') + 
-                '</strong> (' + time + ')<br>' + content + '</div>';
-                
-            document.getElementById('log-content').innerHTML += logItem;
-        }
-        
-        // Test API on load
-        fetch('/api/health').then(r => r.json()).then(data => {
-            console.log('System Status:', data.status);
-        });
-    </script>
-</body>
-</html>`);
+// WebSocket connection handling
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+  
+  socket.on('join-interview', (interviewId) => {
+    socket.join(interviewId);
+    activeConnections.set(socket.id, interviewId);
+    console.log(`Client ${socket.id} joined interview ${interviewId}`);
+  });
+  
+  socket.on('video-stream', (data) => {
+    socket.to(data.interviewId).emit('candidate-video', {
+      stream: data.stream,
+      candidateId: socket.id
+    });
+  });
+  
+  socket.on('audio-stream', (data) => {
+    socket.to(data.interviewId).emit('candidate-audio', {
+      stream: data.stream,
+      candidateId: socket.id
+    });
+  });
+  
+  socket.on('avatar-speech', (data) => {
+    socket.to(data.interviewId).emit('ai-speaking', {
+      text: data.text,
+      emotion: data.emotion || 'neutral'
+    });
+  });
+  
+  socket.on('disconnect', () => {
+    const interviewId = activeConnections.get(socket.id);
+    if (interviewId) {
+      activeConnections.delete(socket.id);
+      console.log(`Client ${socket.id} disconnected from interview ${interviewId}`);
+    }
+  });
 });
 
-app.listen(port, () => {
-  console.log('🚀 AI Interview System running on port ' + port);
+// Helper function to calculate response score
+function calculateScore(response, questionIndex) {
+  const question = interviewQuestions[questionIndex];
+  let score = 5; // Base score
+  
+  // Length bonus
+  if (response.length > 50) score += 1;
+  if (response.length > 100) score += 1;
+  
+  // Keyword matching
+  const responseLower = response.toLowerCase();
+  question.keywords.forEach(keyword => {
+    if (responseLower.includes(keyword)) {
+      score += 1;
+    }
+  });
+  
+  // Professional language bonus
+  const professionalWords = ['experience', 'project', 'team', 'leadership', 'skills', 'goals', 'achievement'];
+  professionalWords.forEach(word => {
+    if (responseLower.includes(word)) {
+      score += 0.5;
+    }
+  });
+  
+  return Math.min(score, 10);
+}
+
+// Serve the main HTML page
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+server.listen(port, () => {
+  console.log('🚀 AI Interview System with Video Conferencing running on port ' + port);
+  console.log('📹 Video Avatar System: ACTIVE');
+  console.log('🎤 Speech Recognition: ENABLED');
+  console.log('🔊 Text-to-Speech: ENABLED');
 });
