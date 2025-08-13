@@ -28,10 +28,14 @@ const LandingPage = () => {
   const [isStarting, setIsStarting] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
 
-  const handleStartInterview = async (candidateInfo) => {
+  const handleStartInterview = async (formData) => {
     setIsStarting(true);
     try {
-      const response = await startInterview(candidateInfo);
+      const response = await startInterview(
+        formData.candidateInfo, 
+        formData.interviewType, 
+        formData.avatarId
+      );
       
       if (response.success) {
         toast.success('Interview started successfully!');
