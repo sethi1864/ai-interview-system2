@@ -1,284 +1,391 @@
-# 🤖 AI Interview System Pro - Video Conferencing Mode
+# 🚀 AI Interview System
 
-A complete AI-powered interview system with video conferencing capabilities, featuring an animated AI avatar that conducts realistic job interviews.
+A revolutionary AI-powered interview platform that conducts job interviews with photorealistic avatars so naturally that candidates can't distinguish them from human interviewers.
 
-## 🚀 Live Demo
+## 🎯 Key Features
 
-**Live URL**: https://ai-interview-system2-production.up.railway.app/
+### 🤖 **AI-Powered Intelligence**
+- **GPT-4 Integration**: Advanced conversation with natural follow-up questions
+- **Dynamic Questioning**: Context-aware responses based on candidate answers
+- **Real-time Scoring**: Intelligent evaluation of responses
+- **Conversation Memory**: Maintains context throughout the interview
 
-## ✨ Features
+### 👤 **Photorealistic Avatars**
+- **HeyGen Integration**: Human-like video generation with lip-sync
+- **Multiple Personas**: Sarah (HR), John (Technical), Priya (Senior HR), David (Executive)
+- **Natural Expressions**: Blinking, nodding, gestures, and emotions
+- **Professional Backgrounds**: Office environments for authenticity
 
-### 🎥 Video Conferencing Mode
-- **Real-time video streaming** with WebRTC
-- **AI Avatar "Sarah"** with realistic facial animations
-- **Lip-sync technology** for natural speech
-- **Professional appearance** with business attire
-- **Emotional expressions** (neutral, happy, serious)
+### 🎤 **Voice & Speech**
+- **ElevenLabs Integration**: Natural voice synthesis with emotion
+- **Deepgram Integration**: Real-time speech-to-text conversion
+- **Multiple Voices**: Different voices for each avatar persona
+- **Audio Processing**: High-quality audio capture and playback
 
-### 🎤 Voice & Speech
-- **Free Text-to-Speech** using Web Speech API
-- **Speech Recognition** for voice input
-- **Real-time voice processing**
-- **Multiple voice options** (female voices preferred)
+### 📊 **Real-time Analytics**
+- **Live Scoring**: Instant evaluation of candidate responses
+- **Performance Metrics**: Communication, technical, behavioral scoring
+- **Interview Analytics**: Comprehensive reporting and insights
+- **Admin Dashboard**: Real-time monitoring and intervention
 
-### 📊 Interview Features
-- **5 Professional Questions** with follow-ups
-- **Real-time scoring** based on response quality
-- **Progress tracking** with visual indicators
-- **Interview logs** with timestamps
-- **Audio recording** of responses
+### 🔒 **Enterprise Security**
+- **JWT Authentication**: Secure session management
+- **Rate Limiting**: Protection against abuse
+- **Data Encryption**: End-to-end encryption
+- **Privacy Compliance**: GDPR and data protection ready
 
-### 🎨 User Interface
-- **Modern, responsive design** with Tailwind-inspired CSS
-- **Split-screen layout** (candidate + AI avatar)
-- **Real-time status indicators**
-- **Mobile-responsive** design
-- **Professional color scheme**
+## 🏗️ Architecture
 
-## 🛠️ Technical Stack
-
-### Backend
-- **Node.js** with Express.js
-- **Socket.IO** for real-time communication
-- **WebRTC** for video streaming
-- **In-memory storage** for interview data
-
-### Frontend
-- **Vanilla JavaScript** with ES6+ features
-- **Canvas API** for avatar rendering
-- **Web Speech API** for TTS and STT
-- **MediaDevices API** for camera/microphone access
-
-### Free Alternatives Used
-- **Web Speech API** (instead of ElevenLabs)
-- **Canvas-based Avatar** (instead of HeyGen)
-- **Browser-native TTS** (instead of OpenAI TTS)
+```
+ai-interview-system/
+├── client/                 # React Frontend
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── services/      # API services
+│   │   └── utils/         # Utility functions
+├── server/                # Node.js Backend
+│   ├── routes/           # API routes
+│   ├── controllers/      # Business logic
+│   ├── models/          # Database models
+│   ├── services/        # External API services
+│   └── middleware/      # Express middleware
+├── config/              # Configuration files
+└── logs/               # Application logs
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18.x or higher
-- Modern browser with WebRTC support
-- Camera and microphone access
+- Node.js 16+ 
+- MongoDB 4.4+
+- Redis 6.0+
+- npm or yarn
 
-### Installation
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/ai-interview-system.git
+cd ai-interview-system
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd ai-interview-system-pro
-   ```
+### 2. Install Dependencies
+```bash
+# Install backend dependencies
+npm install
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Install frontend dependencies
+cd client
+npm install
+cd ..
+```
 
-3. **Start the server**
-   ```bash
-   npm start
-   ```
+### 3. Environment Configuration
+```bash
+# Copy environment template
+cp .env.example .env
 
-4. **Open in browser**
-   ```
-   http://localhost:3000
-   ```
+# Edit .env file with your API keys
+nano .env
+```
 
-## 🎯 How to Use
+Required environment variables:
+```bash
+# Database
+MONGODB_URI=mongodb://localhost:27017/ai-interview
+REDIS_URL=redis://localhost:6379
+
+# AI APIs
+OPENAI_API_KEY=your_openai_key
+ELEVENLABS_API_KEY=your_elevenlabs_key
+DEEPGRAM_API_KEY=your_deepgram_key
+HEYGEN_API_KEY=your_heygen_key
+
+# JWT
+JWT_SECRET=your_super_secret_jwt_key
+JWT_EXPIRES_IN=24h
+
+# Server
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+```
+
+### 4. Start the Application
+```bash
+# Development mode (both frontend and backend)
+npm run dev
+
+# Or start separately
+npm run server    # Backend only
+npm run client    # Frontend only
+```
+
+### 5. Access the Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3000/api
+- **Health Check**: http://localhost:3000/health
+
+## 🎭 Demo Mode
+
+The system includes a fully functional demo mode that works without API keys:
+
+```bash
+# Enable demo mode in .env
+DEMO_MODE_ENABLED=true
+DEMO_API_KEYS_REQUIRED=false
+```
+
+Demo features:
+- Pre-recorded avatar videos
+- Scripted responses with branching
+- Simulated scoring
+- Sample conversation flows
+
+## 📱 Usage
 
 ### Starting an Interview
-1. Click "🎬 Start Video Interview"
-2. Allow camera and microphone access
-3. AI Sarah will appear and ask the first question
 
-### During the Interview
-- **Voice Input**: Click "🎤 Start Voice Input" to speak your response
-- **Text Input**: Type your response in the text area
-- **Camera Controls**: Toggle camera/microphone on/off
-- **Progress**: Monitor your score and question progress
+1. **Landing Page**: Visit the homepage and click "Start Interview"
+2. **Candidate Info**: Fill in name, email, position, and experience
+3. **Avatar Selection**: Choose your preferred AI interviewer
+4. **Interview Room**: Join the real-time interview session
 
 ### Interview Flow
-1. **Question 1**: Tell me about yourself
-2. **Question 2**: What are your greatest strengths?
-3. **Question 3**: Describe a challenging project
-4. **Question 4**: Where do you see yourself in 5 years?
-5. **Question 5**: Why should we hire you?
 
-## 🎨 Avatar System
+1. **Welcome**: AI greets candidate with personalized message
+2. **Conversation**: Natural back-and-forth with intelligent follow-ups
+3. **Scoring**: Real-time evaluation of responses
+4. **Closing**: Professional conclusion with next steps
 
-### Features
-- **Realistic facial animations** with blinking and lip-sync
-- **Professional appearance** with business attire
-- **Emotional expressions** that change based on context
-- **Smooth animations** at 60fps
-- **Responsive design** that works on all devices
+### Admin Features
 
-### Technical Implementation
-- **Canvas-based rendering** for smooth animations
-- **RequestAnimationFrame** for optimal performance
-- **Modular design** for easy customization
-- **Memory efficient** with proper cleanup
+1. **Dashboard**: Monitor active interviews and system health
+2. **Intervention**: Join interviews for human oversight
+3. **Analytics**: View performance metrics and trends
+4. **Management**: Manage questions, users, and settings
 
 ## 🔧 API Endpoints
 
-### Health Check
+### Interview Management
+```bash
+POST /api/interview/start          # Start new interview
+POST /api/interview/respond        # Process candidate response
+GET  /api/interview/:id           # Get interview details
+POST /api/interview/:id/end       # End interview
+GET  /api/interview/active/list   # List active interviews
 ```
-GET /api/health
+
+### Avatar & Voice
+```bash
+POST /api/avatar/generate         # Generate avatar video
+GET  /api/avatar/list            # Get available avatars
+POST /api/speech/synthesize      # Text to speech
+POST /api/speech/recognize       # Speech to text
 ```
-Returns system status and active connections.
 
-### Start Interview
+### Analytics
+```bash
+GET /api/analytics/overview      # System overview
+GET /api/analytics/interviews    # Interview analytics
+GET /api/analytics/candidates    # Candidate analytics
 ```
-POST /api/interview/start
+
+## 🎨 Frontend Components
+
+### Core Components
+- `LandingPage`: Professional homepage with features showcase
+- `InterviewRoom`: Main interview interface with avatar and chat
+- `AvatarDisplay`: Video player for AI interviewer
+- `ChatInterface`: Real-time conversation interface
+- `ScoreDisplay`: Live scoring and feedback
+- `AdminDashboard`: Administrative interface
+
+### Hooks
+- `useInterview`: Interview state management
+- `useWebSocket`: Real-time communication
+- `useAudio`: Audio recording and playback
+
+## 🗄️ Database Schema
+
+### Interview Model
+```javascript
+{
+  interviewId: String,           // Unique identifier
+  candidateInfo: {               // Candidate details
+    name: String,
+    email: String,
+    position: String,
+    experience: String
+  },
+  status: String,                // active, completed, abandoned
+  conversationHistory: Array,    // Message history
+  scores: Array,                 // Response scores
+  finalScore: Number,            // Overall score
+  aiPersona: String,             // Avatar type
+  metadata: Object               // Session metadata
+}
 ```
-Creates a new interview session.
 
-### Submit Response
+### Candidate Model
+```javascript
+{
+  email: String,                 // Unique identifier
+  name: String,
+  interviewHistory: Array,       // Past interviews
+  overallRating: Number,         // Average score
+  skills: Array,                 // Technical skills
+  preferences: Object            // Job preferences
+}
 ```
-POST /api/interview/respond
+
+## 🔒 Security Features
+
+### Authentication & Authorization
+- JWT-based authentication
+- Role-based access control
+- Session management
+- Secure password handling
+
+### Data Protection
+- Input validation and sanitization
+- SQL injection prevention
+- XSS protection
+- CSRF protection
+
+### Rate Limiting
+- API rate limiting
+- Request throttling
+- DDoS protection
+- Abuse prevention
+
+## 📊 Performance Optimization
+
+### Caching
+- Redis for session storage
+- Response caching
+- Database query optimization
+- CDN for static assets
+
+### Scalability
+- Horizontal scaling support
+- Load balancing ready
+- Database connection pooling
+- Async processing
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+npm test                    # Run all tests
+npm run test:unit          # Unit tests
+npm run test:integration   # Integration tests
+npm run test:coverage      # Coverage report
 ```
-Submits candidate response and gets next question.
 
-### Get Interview History
+### Frontend Tests
+```bash
+cd client
+npm test                   # Run React tests
+npm run test:coverage      # Coverage report
 ```
-GET /api/interview/:id
-```
-Retrieves complete interview data.
-
-## 🌐 WebSocket Events
-
-### Client to Server
-- `join-interview`: Join interview room
-- `video-stream`: Send video stream
-- `audio-stream`: Send audio stream
-- `avatar-speech`: Trigger avatar speech
-
-### Server to Client
-- `candidate-video`: Receive candidate video
-- `candidate-audio`: Receive candidate audio
-- `ai-speaking`: AI avatar speaking event
-
-## 📊 Scoring System
-
-### Response Evaluation
-- **Length bonus**: Longer responses get higher scores
-- **Keyword matching**: Professional terms boost scores
-- **Content quality**: Relevant experience and skills
-- **Communication**: Clear and articulate responses
-
-### Score Calculation
-- Base score: 5/10
-- Length bonus: +1 for >50 words, +1 for >100 words
-- Keyword bonus: +1 per relevant keyword
-- Professional language: +0.5 per professional term
-- Maximum score: 10/10 per question
-
-## 🎯 Free Alternatives Used
-
-### Text-to-Speech
-- **Web Speech API** (browser-native)
-- **Multiple voice options** available
-- **No API costs** or rate limits
-- **High quality** female voices
-
-### Speech Recognition
-- **Web Speech API** (browser-native)
-- **Real-time transcription**
-- **Multiple language support**
-- **No external dependencies**
-
-### Avatar Generation
-- **Canvas-based rendering**
-- **Custom animations** and expressions
-- **Professional appearance**
-- **No external API costs**
-
-## 🔒 Privacy & Security
-
-### Data Handling
-- **No permanent storage** of video/audio
-- **In-memory only** interview data
-- **Automatic cleanup** on session end
-- **No external API calls** for sensitive data
-
-### Browser Permissions
-- **Camera access** for video streaming
-- **Microphone access** for voice input
-- **Local processing** of all data
-- **No data transmission** to third parties
 
 ## 🚀 Deployment
 
-### Railway.app (Current)
-- **Automatic deployment** from Git
-- **HTTPS enabled** by default
-- **WebSocket support** included
-- **Environment variables** configured
+### Docker Deployment
+```bash
+# Build Docker image
+docker build -t ai-interview-system .
 
-### Local Development
-- **Hot reload** with nodemon
-- **Debug mode** available
-- **Local SSL** for testing
-- **Port configuration** via environment
+# Run container
+docker run -p 3000:3000 ai-interview-system
+```
 
-## 🎨 Customization
+### Railway Deployment
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
 
-### Avatar Appearance
-- Modify `avatar.js` for different looks
-- Change colors, hairstyles, and attire
-- Add new emotional expressions
-- Customize animation timing
+# Deploy to Railway
+railway login
+railway init
+railway up
+```
 
-### Interview Questions
-- Edit `interviewQuestions` array in `server.js`
-- Add new question categories
-- Modify scoring algorithms
-- Customize follow-up responses
+### Environment Variables for Production
+```bash
+NODE_ENV=production
+MONGODB_URI=your_production_mongodb_uri
+REDIS_URL=your_production_redis_url
+JWT_SECRET=your_production_jwt_secret
+CORS_ORIGIN=your_frontend_domain
+```
 
-### UI Styling
-- Update CSS in `index.html`
-- Change color schemes
-- Modify layout and spacing
-- Add new UI components
+## 📈 Monitoring & Logging
 
-## 🔮 Future Enhancements
+### Application Logs
+- Winston logging with multiple transports
+- Error tracking and monitoring
+- Performance metrics
+- Audit trails
 
-### Planned Features
-- **Multiple avatar options** (different interviewers)
-- **Advanced scoring algorithms** with AI
-- **Interview recording** and playback
-- **Candidate dashboard** with analytics
-- **Integration with HR systems**
-
-### Technical Improvements
-- **Database integration** for persistent storage
-- **Advanced avatar animations** with 3D
-- **Multi-language support** for international use
-- **Mobile app** development
-- **AI-powered question generation**
-
-## 📞 Support
-
-### Issues & Bugs
-- Check browser console for errors
-- Ensure camera/microphone permissions
-- Verify WebRTC support in browser
-- Test with different browsers
-
-### Browser Compatibility
-- **Chrome**: Full support
-- **Firefox**: Full support
-- **Safari**: Limited Web Speech API
-- **Edge**: Full support
-
-## 📄 License
-
-This project is open source and available under the MIT License.
+### Health Checks
+```bash
+GET /health              # Application health
+GET /api/health          # API health
+GET /api/avatar/health   # Avatar service health
+GET /api/speech/health   # Speech service health
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: [Wiki](https://github.com/your-username/ai-interview-system/wiki)
+- **Issues**: [GitHub Issues](https://github.com/your-username/ai-interview-system/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-username/ai-interview-system/discussions)
+- **Email**: support@aiinterviewpro.com
+
+## 🎯 Roadmap
+
+### Phase 1 (Current)
+- ✅ Basic interview functionality
+- ✅ Avatar integration
+- ✅ Voice synthesis
+- ✅ Real-time scoring
+
+### Phase 2 (Q2 2024)
+- 🔄 Multi-language support
+- 🔄 Advanced analytics
+- 🔄 Mobile app
+- 🔄 Integration APIs
+
+### Phase 3 (Q3 2024)
+- 📋 AI-powered resume parsing
+- 📋 Behavioral analysis
+- 📋 Predictive hiring
+- 📋 Enterprise features
+
+## 🙏 Acknowledgments
+
+- **OpenAI** for GPT-4 integration
+- **HeyGen** for avatar generation
+- **ElevenLabs** for voice synthesis
+- **Deepgram** for speech recognition
+- **MongoDB** for database
+- **Redis** for caching
 
 ---
 
-**Built with ❤️ for modern AI-powered interviews**
+**Built with ❤️ by the AI Interview Pro Team**
+
+*Revolutionizing recruitment through intelligent automation*
